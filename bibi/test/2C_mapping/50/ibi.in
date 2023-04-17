@@ -1,0 +1,129 @@
+# To run the code: python3 bibi.py run [input_script]
+# aa2cg code generated LAMMPS input data file
+#------------------------------------------------------------
+#                   Material Properties
+#------------------------------------------------------------
+# Weights of the crystal potential
+# crystal_weight <percentage>
+crystal_weight    0.50
+
+#------------------------------------------------------------
+#	Path to LAMMPS Data and Target Distribution Files
+#------------------------------------------------------------
+# Amorphous system
+# LAMMPS data files
+path lmpdata amorphous ../../amorphous/data/*.lammps
+# CG-distribution target files
+path target_rdf_path amorphous ../../amorphous/target/rdf-*.txt
+path target_bdf_path amorphous ../../amorphous/target/bdf-*.txt
+path target_adf_path amorphous ../../amorphous/target/adf-*.txt
+# Crystal system
+# LAMMPS data files
+path lmpdata crystal ../../crystal/data/*.lammps
+# CG-distribution target files
+path target_rdf_path crystal ../../crystal/target/rdf-*.txt
+path target_bdf_path crystal ../../crystal/target/bdf-*.txt
+path target_adf_path crystal ../../crystal/target/adf-*.txt
+
+#------------------------------------------------------------
+#         Parameters for Running LAMMPS Simulation
+#------------------------------------------------------------
+# Style to save the simulated result (full/molecular)
+lammps lmp_style molecular
+# Time step for LAMMPS simulations
+lammps timestep 5.0
+# NVE limit (units of distance)
+lammps nve_step 5.0
+# Forcefield terms styles
+# Bond
+lammps bond_style table
+# bond_coeff <id> <type>
+lammps bond_coeff 1 AA
+# Angle
+lammps angle_style table
+# angle_coeff <id> <type>
+lammps angle_coeff 1 AAA
+
+#------------------------------------------------------------
+#             Parameters for Sampling CG Distribution
+#------------------------------------------------------------
+# Type definition
+sample type 1 a
+# CG scheme definition
+sample bead A a 1.0
+# Distribution function type <start> <end> <interval>
+sample range rdf  0.0    15.0   0.015
+sample special_bonds 0 0 1
+sample range bdf  0.0    10.0   0.01
+sample range adf  0.0    180.0  0.18
+
+#------------------------------------------------------------
+#         Parameters for Updating the Potentials
+#------------------------------------------------------------
+# Maximum number of iterations
+update iterations           1000
+# Tolerance for extrapolation
+# Dimensionless
+update tolerance pair       7e-3
+# Units 1 / l
+update tolerance bond       4e-2
+# Units of 1 / deg
+update tolerance angle      2e-3
+# Scaling factor alpha
+update scaling_factor pair  0.01
+update scaling_factor bond  0.01
+update scaling_factor angle 0.01
+# Savgol smoothing settings <window> <count>
+update smooth_factor pair   11 2
+update smooth_factor bond   11 2
+update smooth_factor angle  11 2
+# Pressure below which correction stops
+update pressure_tolerance   100.0
+# Number of max iteration for pressure correction
+update pressure_iterations  50
+# Step size for updating the pressure
+update pressure_factor      0.1
+# Fitting range for RDF
+update fit_range            15.0
+
+#------------------------------------------------------------
+#                   Convergence Parameters
+#------------------------------------------------------------
+# Convergence criteria
+# convergence criterion <total/pair_type/bond_type/angle_type>
+convergence criterion total
+# Convergence tolerances for each potential
+convergence tolerance pair  0.001
+convergence tolerance bond  0.001
+convergence tolerance angle 0.001
+# Number of initial system to be used for convergence
+convergence system_used amorphous 3
+convergence system_used crystal   1
+
+#------------------------------------------------------------
+#                    Cluster Parameters
+#------------------------------------------------------------
+# LAMMPS cluster settings (on/off)
+slurm   cluster 	off
+slurm 	lammps	nodes 	1
+# Number of cores (default = 1 core per task)
+slurm 	lammps 	tasks 	64
+# Number of CPUs per task
+slurm 	lammps	cpu	1
+# Memory capacity
+slurm 	lammps	memory	24
+# Partition to use
+slurm 	lammps 	partition general
+# Quality of service (default: public)
+slurm 	lammps 	qos  	public
+# Time limit (hours)
+slurm 	lammps 	time	1
+# CG distribution cluster settings
+slurm	cg	nodes	1
+slurm 	cg	tasks	1
+slurm 	cg 	cpu	16
+slurm 	cg 	memory	24
+slurm	cg	partition general
+slurm 	cg	qos	public
+slurm 	cg 	time	1
+

@@ -1,0 +1,48 @@
+# Initialization
+variable        dt equal {ts}
+units           real
+atom_style      {lmp_style}
+boundary        p p p
+
+# Forcefield parameters
+{pair_style}
+{bond_style}
+{angle_style}
+
+read_data       {data} nocoeff
+
+{pair_coeff}
+{bond_coeff}
+{angle_coeff}
+
+special_bonds   lj/coul {sb}
+neighbor	    5.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+thermo_style    custom step temp press vol density ke pe etotal
+thermo          100
+timestep        $(v_dt)
+
+velocity 	    all create 300.0 1234
+
+# Remove high energy states from the system
+fix             1 all nve/limit {nve_ts}
+fix             2 all temp/berendsen 300 300 $(10*v_dt)
+run             $(1000/v_dt)
+unfix           1
+unfix           2
+
+# Equilibrate the system
+reset_timestep  0
+fix             1 all nvt temp 300 300 $(100*v_dt)
+run             $(5000/v_dt)
+unfix           1
+
+# Sample the system
+reset_timestep  0
+fix             1 all nvt temp 300 300 $(100*v_dt)
+compute         1 all pressure thermo_temp
+fix             2 all ave/time 1 $(100/v_dt) $(100/v_dt) c_1 file {dump_path}/pressure-{sys}.txt
+run             $(1000/v_dt)
+unfix           1
+

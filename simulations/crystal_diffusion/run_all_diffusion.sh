@@ -43,7 +43,7 @@ for f in ../data/*.data; do
     w1=`echo $(pwd) | cut -d "/" -f 8 | cut -d "_" -f 1`
     w2=`echo $(pwd) | cut -d "/" -f 8 | cut -d "_" -f 2`
     echo "For system ${sys}."
-    for T in `seq 300 20 400`  ; do
+    for T in `seq 300 20 500`  ; do
         if [ ! -f samples/${sys}.${T} ]; then
             echo "Submit the sampling job for ${T} K."
             slurm ${sys} 4 ${T}$w1$w2 ../diffusion.in ${T}

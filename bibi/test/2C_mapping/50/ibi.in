@@ -5,7 +5,7 @@
 #------------------------------------------------------------
 # Weights of the crystal potential
 # crystal_weight <percentage>
-crystal_weight    0.50
+crystal_weight    0.5
 
 #------------------------------------------------------------
 #	Path to LAMMPS Data and Target Distribution Files

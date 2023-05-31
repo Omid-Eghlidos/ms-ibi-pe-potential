@@ -1,0 +1,41 @@
+##################### Initialize Variables ########################
+# Name of the folder with potentials trained with similar w values
+variable        w index 50
+# Temperature to perform the crystal diffusion simulation
+variable        T index 300
+# The stable timestep for running the simulation
+variable        dt equal 5.0
+
+###################### Initialize System ##########################
+units           real
+atom_style      molecular
+log             diffusion.$(v_w).$(v_T).log
+read_data       data/a7b11c60.data
+
+###################### Force Field Settings #######################
+pair_style      table linear 1000
+bond_style      table linear 1000
+angle_style     table linear 1000
+dihedral_style  none
+pair_coeff      1 1 potentials/pair.$(v_w).table.AA AA
+bond_coeff      1 potentials/bond.$(v_w).table.AA AA
+angle_coeff     1 potentials/angle.$(v_w).table.AAA AAA
+pair_modify     tail yes
+special_bonds   lj/coul 0 0 1
+neighbor        3.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+########################## Simulation #############################
+timestep        $(v_dt)
+thermo_style    custom step temp press vol density pe ke etotal
+thermo          1000
+# Equilibrate: 500 ps NPT run
+# expected run time: ~3 minutes on 12 cores (AMD 5900X)
+fix             1 all npt temp $(v_T) $(v_T) 100 aniso 1 1 1000
+fix             2 all momentum 1 linear 1 1 1 angular
+run             $(500e3/v_dt)
+# Sampling: 100 ns NPT run
+# expected run time: ~10 hours on 12 cores (AMD 5900X)
+reset_timestep  0
+dump            1 all custom $(1e6/v_dt) diffusion.$(v_w).$(v_T).lammpstrj id mol xu yu zu
+run             $(100e6/v_dt)

@@ -1,10 +1,19 @@
-########################## Initialize #############################
+##################### Initialize Variables ########################
+# Name of the folder with potentials trained with similar w values
+variable        weight string 50
+# Temperature to perform the crystal diffusion simulation
+variable        T equal 300
+# The stable timestep for running the simulation
 variable        dt equal 5.0
+
+###################### Initialize System ##########################
 units 		real
 atom_style 	molecular
 boundary 	p p p
 
-read_data       ../data/${sys}.data
+log 		$(v_weight)/a7b11c60.$(v_T).log
+read_data       data/a7b11c60.data
+
 
 ###################### Force Field Settings #######################
 pair_style 	table linear 1000
@@ -12,9 +21,9 @@ bond_style      table linear 1000
 angle_style     table linear 1000
 dihedral_style  none
 
-pair_coeff      1 1 potentials/pair.table.AA AA
-bond_coeff      1 potentials/bond.table.AA AA
-angle_coeff     1 potentials/angle.table.AAA AAA
+pair_coeff      1 1 $(v_weight)/potentials/pair.table.AA AA
+bond_coeff      1 $(v_weight)/potentials/bond.table.AA AA
+angle_coeff     1 $(v_weight)/potentials/angle.table.AAA AAA
 
 pair_modify 	tail yes
 special_bonds 	lj/coul 0 0 1
@@ -27,7 +36,7 @@ thermo_style    custom step temp press vol density pe ke etotal
 thermo          1000
 
 # Equilibrate
-fix             1 all npt temp ${T} ${T} 100 aniso 1 1 1000
+fix             1 all npt temp $(v_T) $(v_T) 100 aniso 1 1 1000
 fix             2 all momentum 1 linear 1 1 1 angular
 run             $(500000/v_dt)
 unfix           1
@@ -35,9 +44,9 @@ unfix           2
 
 # Sample
 reset_timestep  0
-fix             1 all npt temp ${T} ${T} 100 aniso 1.0 1.0 1000
+fix             1 all npt temp $(v_T) $(v_T) 100 aniso 1.0 1.0 1000
 fix             2 all momentum 1 linear 1 1 1 angular
-dump            1 all custom $(1000000/v_dt) samples/${sys}.${T} id mol type xu yu zu
+dump            1 all custom $(1000000/v_dt) $(v_weight)/a7b11c60.$(v_T) id mol type xu yu zu
 run             $(100000000/v_dt)
 unfix           1
 unfix           2

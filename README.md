@@ -21,7 +21,7 @@ To run the crystal diffusion at a specific temperature using a potential trained
 with a specific w (e.g., w = 25 and T = 360 K) on a workstation/cluster without
 the task scheduler, run:
 
-mpiexec -n <np> lmp_mpi -in diffusion.in  -v w 25 -v T 360
+mpiexec -n np lmp_mpi -in diffusion.in  -v w 25 -v T 360
 
-* <np> (integer): number of processors to use
+* np: number (integer) of processors to use
 
